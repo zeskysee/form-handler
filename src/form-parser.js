@@ -32,28 +32,42 @@ class _FormParser {
     _.each(form.querySelectorAll('select'), function (select) {
       var value = undefined;
 
-      // add selected options for this field to value
-      _.each(select.selectedOptions, function (selectedOption) {
-        if (_.isUndefined(value)) {
-          // add as simple value
-          value = selectedOption.value;
-        } else if (_.isArray(value)) {
-          // push value to existing array
-          value.push(selectedOption.value);
-        } else {
-          // should be string, create array and add it
-          value = [value];
+      // special handling for elements in disabled section
+      var excludedElement = false;
+      var parentElement = select.parentElement;
+      while (parentElement) {
+        if (_.contains(parentElement.classList, 'exclude-element')) {
+          excludedElement = true;
+          debugger;
+          break;
         }
-      });
-
-      if (value === '') {
-        // if selected value is '', $unset it
-        doc['$unset'] = doc['$unset'] || {};
-        doc['$unset'][select.name] = '';
+        parentElement = parentElement.parentElement;
       }
 
-      if (value) {
-        self._setValue(doc, select.name, value);
+      if (!excludedElement) {
+        // add selected options for this field to value
+        _.each(select.selectedOptions, function (selectedOption) {
+          if (_.isUndefined(value)) {
+            // add as simple value
+            value = selectedOption.value;
+          } else if (_.isArray(value)) {
+            // push value to existing array
+            value.push(selectedOption.value);
+          } else {
+            // should be string, create array and add it
+            value = [value];
+          }
+        });
+
+        if (value === '') {
+          // if selected value is '', $unset it
+          doc['$unset'] = doc['$unset'] || {};
+          doc['$unset'][select.name] = '';
+        }
+
+        if (value) {
+          self._setValue(doc, select.name, value);
+        }
       }
 
     });

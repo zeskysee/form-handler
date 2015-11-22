@@ -34,11 +34,12 @@ In template's JavaScript file:
           // Called when the form loads. Return an object that represents the initial form values.  
           // "this" contains template data
         },
-        beforeValidate(doc) {
+        beforeValidate(modifier) {
           // Called before form validation. This can be used to perform post form submission processing before validation.
           // "this" contains template data
+          // modifier contains $set and/or $unset objects
         },
-        validate: function(doc) {
+        validate: function(modifier) {
           // Specifying this function overrides the default form validation against schema if specified. If you are using
           // schema, you should not need to specify this function.
         },

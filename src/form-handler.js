@@ -47,46 +47,39 @@ class Form {
   }
 
   submit(event) {
+    'use strict';
+
     var errors = {};
-    var $unset = undefined;
+    var parsedDoc = FormParser.parse(event.target);
+    var modifier = {
+      $set: JSON.parse(JSON.stringify(parsedDoc)), // TODO: #tip easy way to clone object
+      $unset: {}
+    };
 
-    // parse form to doc
-    var doc = FormParser.parse(event.target);
-    // keep a copy of the parsedDoc to send to user when calling handler save() function
-    var parsedDoc = JSON.parse(JSON.stringify(doc));
-
-    if (doc['$unset']) {
-      $unset = doc['$unset'];
-      delete doc['$unset'];
+    if (modifier.$set['$unset']) {
+      // if FormParser sets '$unset' in the parsed doc, move the values to modifier.$unset
+      modifier.$unset = modifier.$set['$unset'];
+      delete modifier.$set['$unset'];
     }
 
     // --- beforeValidate
     var handler = this._handler;
-    handler.beforeValidate && handler.beforeValidate.call(this._context.data, doc);
+    handler.beforeValidate && handler.beforeValidate.call(this._context.data, modifier);
 
     // --- validate
     if (handler.validate) {
       // execute custom validate function defined by handler
-      errors = handler.validate.call(this._context.data, doc);
+      errors = handler.validate.call(this._context.data, modifier);
     } else if (handler.schema) {
       // --- validate with schema
-      // schema defined in handler, perform default schema validation
-      var options = {};
-      options.schema = handler.schema;
-      errors = validateAgainstSchema(doc, options);
+      errors = validateAgainstSchema(modifier, handler.schema);
     }
 
     this.errors(errors);
-    this.doc(doc);
+    this.doc(modifier.$set);
 
     if (_.size(this.errors()) === 0) {
       // call handler's save if there is no error
-
-      // set modifier if $unset is defined
-      var modifier = {$set: doc};
-      if ($unset) {
-        modifier['$unset'] = $unset;
-      }
       handler.save && handler.save.call(this._context.data, parsedDoc, modifier);
 
     } else if (handler.debug === true) {
@@ -94,23 +87,27 @@ class Form {
 
     }
 
-    function validateAgainstSchema(doc, options = {}) {
+    function validateAgainstSchema(modifier, schema) {
       var errors = {};
-      var schema = options.schema;
 
       if (!schema) {
         throw new Error('Cannot validate form without schema');
       }
 
-      schema.clean(doc);
+      var doc = modifier.$set;
       extraClean(schema, doc);
+      schema.clean(modifier, {
+        modifier: true
+      });
 
       var validationContext = schema.namedContext('form-handler');
       validationContext.resetValidation();
-      if (!validationContext.validate(doc)) {
+
+      // validate all required fields
+      if (!validationContext.validate(modifier, {modifier: true})) {
         // convert array of errors from simple schema into a map (easy to render)
         _.each(validationContext.invalidKeys(), function (obj) {
-          errors[obj.name] = _.omit(obj, 'name', options.omit); // remove redundant object key
+          errors[obj.name] = _.omit(obj, 'name'); // remove redundant object key
           errors[obj.name].message = schema.messageForError(obj.type, obj.name);
         });
       }
@@ -147,7 +144,7 @@ class Form {
       if (indexes === undefined) {
         throw new Error(`Indexes required to resolve [${name}]`);
       }
-      name = FormHandler.toIndex(name, context.indexes);
+      name = FormHandler.toIndex(name, indexes);
     }
 
     var error = this._errors.get()[name];
@@ -159,16 +156,20 @@ class Form {
   }
 
   type(name) {
+    var type = 'text';
+
     if (this._handler && this._handler.schema) {
       var prop = this._handler.schema.schema(name);
 
-      switch (prop) {
-        case Number:
-          return 'number';
+      if (prop) {
+        switch (prop.type) {
+          case Number:
+            type = 'number';
+        }
       }
     }
 
-    return 'text';
+    return type;
   }
 
 }
@@ -183,7 +184,6 @@ Template.formHandler.events({
 
     this.form.submit(event);
   }
-
 });
 
 FormHandler = {
