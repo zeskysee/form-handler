@@ -128,7 +128,7 @@ class Form {
     }
   }
 
-  value(name, indexes) {
+  value(name, indexes, value) {
     if (name.indexOf('.$') !== -1) {
       if (indexes === undefined) {
         throw new Error(`Indexes required to resolve [${name}]`);
@@ -136,7 +136,15 @@ class Form {
       name = FormHandler.toIndex(name, indexes);
     }
 
-    return FormParser._getValue(this._doc.get(), name);
+    if(arguments.length===3) {
+      // set value
+      FormParser._setValue(this._doc.get(), name, value);
+      // refresh reactive var
+      this._doc.set(this._doc.get());
+    } else {
+      // get value
+      return FormParser._getValue(this._doc.get(), name);
+    }
   }
 
   errorMessage(name, indexes) {
