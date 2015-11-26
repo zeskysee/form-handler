@@ -10,7 +10,8 @@ class Form {
 
     // set template's data.form as this form object
     if (this._context.data.form !== undefined) {
-      throw new Meteor.Error('Form exist in current data context');
+      // TODO something not right here, need to understand how to handle when form exist in context
+      console.debug('Form exist in current data context');
     }
     this._context.data.form = this;
 
