@@ -9,6 +9,9 @@ class Form {
     this._errors = new ReactiveVar({});
 
     // set template's data.form as this form object
+    if (this._context.data.form !== undefined) {
+      throw new Meteor.Error('Form exist in current data context');
+    }
     this._context.data.form = this;
 
     if (this._handler.load) {
@@ -136,7 +139,7 @@ class Form {
       name = FormHandler.toIndex(name, indexes);
     }
 
-    if(arguments.length===3) {
+    if (arguments.length === 3) {
       // set value
       FormParser._setValue(this._doc.get(), name, value);
       // refresh reactive var
