@@ -1,6 +1,6 @@
 # form-handler
 
-A package that converts form inputs to JSON data for further processing.
+Converts HTML form data to JSON further processing.
 
 Supports:
 
@@ -12,7 +12,7 @@ Supports:
 
 # Install
 
-...
+    meteor add kctang:form-handler
 
 # Usage
 
@@ -51,3 +51,6 @@ In template's JavaScript file:
       });
     };
 
+## Demo
+
+To see this package used in a demo application, refer to [fuse-demo](https://github.com/kctang/fuse-demo).

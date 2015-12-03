@@ -1,7 +1,7 @@
 Package.describe({
   name: 'kctang:form-handler',
   version: '0.0.1',
-  summary: 'Meteor form handling package',
+  summary: 'Converts HTML form data to JSON further processing',
   git: 'https://github.com/kctang/form-handler.git',
   documentation: 'README.md'
 });
