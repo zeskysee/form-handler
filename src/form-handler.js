@@ -98,8 +98,8 @@ class Form {
         throw new Error('Cannot validate form without schema');
       }
 
-      var doc = modifier.$set;
-      extraClean(schema, doc);
+      //var doc = modifier.$set;
+      //extraClean(schema, doc); // code has no use?
       schema.clean(modifier, {
         modifier: true
       });
