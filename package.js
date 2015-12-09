@@ -1,6 +1,6 @@
 Package.describe({
   name: 'kctang:form-handler',
-  version: '0.0.2',
+  version: '0.0.3',
   summary: 'Converts HTML form data to JSON further processing',
   git: 'https://github.com/kctang/form-handler.git',
   documentation: 'README.md'
