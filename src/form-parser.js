@@ -9,11 +9,15 @@ class _FormParser {
 
     // input[type=text]
     // input[type=number]
+    // input[type=password]
+    // input[type=date]
     // input[type=hidden]
     // textarea
     _.each(form.querySelectorAll(
       'input[type=text]:not([disabled]), ' +
       'input[type=number]:not([disabled]), ' +
+      'input[type=password]:not([disabled]), ' +
+      'input[type=date]:not([disabled]), ' +
       'textarea:not([disabled]),' +
       'input[type=hidden]'
     ), function (input) {
@@ -26,6 +30,13 @@ class _FormParser {
     // checkbox
     _.each(form.querySelectorAll('input[type=checkbox]'), function (input) {
       self._setValue(doc, input.name, input.checked);
+    });
+
+    // radio
+    _.each(form.querySelectorAll('input[type=radio]'), function (input) {
+      if(input.checked){
+        self._setValue(doc, input.name, input.value);
+      }
     });
 
     // select
