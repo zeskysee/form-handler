@@ -11,6 +11,7 @@ class _FormParser {
     // input[type=number]
     // input[type=password]
     // input[type=date]
+    // input[type=time]
     // input[type=hidden]
     // textarea
     _.each(form.querySelectorAll(
@@ -18,6 +19,7 @@ class _FormParser {
       'input[type=number]:not([disabled]), ' +
       'input[type=password]:not([disabled]), ' +
       'input[type=date]:not([disabled]), ' +
+      'input[type=time]:not([disabled]), ' +
       'textarea:not([disabled]),' +
       'input[type=hidden]'
     ), function (input) {
